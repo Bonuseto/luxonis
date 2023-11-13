@@ -1,0 +1,27 @@
+.pagination {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.pagination button {
+  background-color: #008CBA;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+button.active:hover {
+  transform: scale(1.03);
+}
+
+button:hover {
+  transform: scale(1.03);
+}

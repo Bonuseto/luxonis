@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment: 
+      - POSTGRES_PASSWORD=1234
+    ports: 
+      - "5432:5432"
+    networks: 
+      - node-network
+    # healthcheck:
+    #   test: ["CMD-SHELL", "pg_isready -U postgres"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
+
+  back-end:
+    build: 
+      context: node
+    container_name: back-end
+    working_dir: /usr/src/app
+    networks: 
+      - node-network
+    volumes: 
+      - ./node:/usr/src/app
+      - /usr/src/app/node_modules
+    tty: true
+    ports: 
+      - "5173:5173"
+    command: npm run start
+    depends_on:
+       - db
+    #   db:
+    #     condition: service_healthy
+    links:
+       - db
+
+  front-end:
+    build: 
+      context: ./frontend
+    depends_on:
+      - db
+      # db:
+      #   condition: service_healthy
+    links:
+      - db
+    container_name: front-end
+    working_dir: /usr/src/app
+    networks: 
+      - node-network
+    volumes: 
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    tty: true
+    ports: 
+      - "3000:3000"
+    command: npm run start
+
+  nginx:
+    build: 
+      context: ./nginx
+    container_name: nginx
+    restart: always
+    tty: true
+    ports: 
+      - "8000:80"
+    networks: 
+      - node-network
+    depends_on:
+       - back-end
+       - front-end
+  
+networks: 
+  node-network:
+    driver: bridge
